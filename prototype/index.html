@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=375, maximum-scale=1.0, user-scalable=no">
+    <title>CoughRecognition - 交互原型</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #fff;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+            border: 10px solid #1a1a1a;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .notch {
+            width: 150px;
+            height: 30px;
+            background: #1a1a1a;
+            border-radius: 0 0 20px 20px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .screen {
+            height: calc(100% - 44px - 83px);
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .tab-bar {
+            height: 83px;
+            background: #fff;
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding-top: 8px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 24px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .tab-item:hover {
+            background: #f0f0f0;
+        }
+
+        .tab-item.active {
+            color: #007AFF;
+        }
+
+        .tab-icon {
+            font-size: 24px;
+            color: #8e8e93;
+        }
+
+        .tab-item.active .tab-icon {
+            color: #007AFF;
+        }
+
+        .tab-label {
+            font-size: 10px;
+            color: #8e8e93;
+        }
+
+        .tab-item.active .tab-label {
+            color: #007AFF;
+        }
+
+        /* 页面通用样式 */
+        .page {
+            display: none;
+            min-height: 100%;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+
+        /* 首页 - 录制页（极简版） */
+        .record-page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100%;
+        }
+
+        .record-page.active {
+            display: flex;
+        }
+
+        .record-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* 模式切换 */
+        .mode-switch {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 20px;
+            padding: 4px;
+            margin-bottom: 40px;
+        }
+
+        .mode-btn {
+            padding: 8px 20px;
+            border-radius: 16px;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #fff;
+            color: #1a1a1a;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* 录制按钮 */
+        .record-button {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #FF3B30, #FF6B6B);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(255, 59, 48, 0.4);
+            transition: all 0.2s;
+        }
+
+        .record-button:hover {
+            transform: scale(1.05);
+        }
+
+        .record-button:active {
+            transform: scale(0.95);
+        }
+
+        .record-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+
+        .record-hint {
+            color: #999;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        /* 监控按钮 */
+        .monitor-button {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #34C759, #5DD67B);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(52, 199, 89, 0.4);
+            transition: all 0.2s;
+        }
+
+        .monitor-button:hover {
+            transform: scale(1.05);
+        }
+
+        .monitor-button.active {
+            background: linear-gradient(145deg, #FF9500, #FFAA33);
+            box-shadow: 0 10px 30px rgba(255, 149, 0, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 10px 30px rgba(255, 149, 0, 0.4); }
+            50% { box-shadow: 0 10px 50px rgba(255, 149, 0, 0.6); }
+        }
+
+        .monitor-status-text {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .monitor-status-main {
+            font-size: 16px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+        .monitor-status-sub {
+            font-size: 13px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        /* 最近录音 */
+        .recent-recordings {
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .recent-title {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 10px;
+            padding-left: 4px;
+        }
+
+        .recent-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            background: #fff;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .recent-item:hover {
+            background: #f5f5f5;
+        }
+
+        .recent-icon {
+            width: 36px;
+            height: 36px;
+            background: #007AFF;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 16px;
+            margin-right: 12px;
+        }
+
+        .recent-icon.monitor {
+            background: #34C759;
+        }
+
+        .recent-info {
+            flex: 1;
+        }
+
+        .recent-time {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .recent-type {
+            font-size: 13px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .recent-arrow {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        /* 历史页 */
+        .history-page {
+            display: none;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .history-page.active {
+            display: block;
+        }
+
+        .date-group {
+            margin-bottom: 24px;
+        }
+
+        .date-header {
+            font-size: 13px;
+            font-weight: 500;
+            color: #999;
+            margin-bottom: 10px;
+            padding-left: 4px;
+        }
+
+        .history-item {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: #f9f9f9;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .history-time {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .history-source {
+            font-size: 11px;
+            color: #fff;
+            background: #007AFF;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .history-source.monitor {
+            background: #34C759;
+        }
+
+        .history-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .history-tag {
+            font-size: 12px;
+            padding: 3px 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            color: #666;
+        }
+
+        .history-tag.warning {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+
+        /* 分析页 */
+        .analysis-page {
+            display: none;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .analysis-page.active {
+            display: block;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #007AFF;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+
+        /* 年龄选择器（分析页顶部） */
+        .age-selector-inline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+
+        .age-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .age-value {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            color: #007AFF;
+            cursor: pointer;
+        }
+
+        .age-dropdown {
+            display: none;
+            position: absolute;
+            right: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .age-dropdown.show {
+            display: block;
+        }
+
+        .age-dropdown-item {
+            padding: 12px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .age-dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .age-dropdown-item:hover {
+            background: #f8f8f8;
+        }
+
+        .age-dropdown-item.selected {
+            color: #007AFF;
+            font-weight: 500;
+        }
+
+        .audio-player {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .waveform {
+            height: 50px;
+            background: linear-gradient(90deg, #007AFF 0%, #5AC8FA 50%, #007AFF 100%);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .wave-bar {
+            width: 3px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 2px;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .play-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #007AFF;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .time-display {
+            font-size: 13px;
+            color: #666;
+            min-width: 36px;
+        }
+
+        .analysis-result {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .result-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+
+        .cough-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cough-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .cough-index {
+            width: 24px;
+            height: 24px;
+            background: #007AFF;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .cough-info {
+            flex: 1;
+        }
+
+        .cough-type {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .cough-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .cough-confidence {
+            font-size: 13px;
+            color: #34C759;
+            font-weight: 500;
+        }
+
+        .ai-advice {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 16px;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .ai-icon {
+            font-size: 20px;
+        }
+
+        .ai-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .ai-content {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .ai-disclaimer {
+            font-size: 11px;
+            opacity: 0.8;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 6px;
+        }
+
+        .share-section {
+            display: flex;
+            gap: 10px;
+        }
+
+        .share-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .share-btn.primary {
+            background: #007AFF;
+            color: #fff;
+        }
+
+        .share-btn.secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        /* 设置页 */
+        .settings-page {
+            display: none;
+            padding: 20px;
+        }
+
+        .settings-page.active {
+            display: block;
+        }
+
+        .settings-group {
+            background: #fff;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            font-size: 15px;
+            color: #1a1a1a;
+        }
+
+        .settings-value {
+            font-size: 14px;
+            color: #999;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .toggle {
+            width: 51px;
+            height: 31px;
+            background: #e5e5e5;
+            border-radius: 16px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle.active {
+            background: #34C759;
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 27px;
+            height: 27px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle.active::after {
+            transform: translateX(20px);
+        }
+
+        /* 录制中弹窗 */
+        .recording-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .recording-modal.active {
+            display: flex;
+        }
+
+        .recording-content {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            width: 280px;
+        }
+
+        .recording-animation {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .recording-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #FF3B30;
+            animation: recording-pulse 1.5s infinite;
+        }
+
+        @keyframes recording-pulse {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        .recording-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            background: #FF3B30;
+            border-radius: 50%;
+        }
+
+        .recording-timer {
+            font-size: 40px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .recording-label {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .stop-btn {
+            width: 100%;
+            padding: 14px;
+            background: #FF3B30;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Toast */
+        .toast {
+            display: none;
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            display: block;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="notch"></div>
+        <div class="status-bar">
+            <span>9:41</span>
+            <span></span>
+            <span>100%</span>
+        </div>
+
+        <div class="screen">
+            <!-- 首页 - 录制（极简版） -->
+            <div class="record-page page active" id="page-record">
+                <div class="record-main">
+                    <!-- 模式切换 -->
+                    <div class="mode-switch">
+                        <button class="mode-btn active" id="mode-record" onclick="switchMode('record')">录制</button>
+                        <button class="mode-btn" id="mode-monitor" onclick="switchMode('monitor')">监控</button>
+                    </div>
+
+                    <!-- 录制模式 -->
+                    <div id="record-mode">
+                        <button class="record-button" onclick="startRecording()">
+                            <span class="record-icon">🎙️</span>
+                            <span>点击录制</span>
+                        </button>
+                        <div class="record-hint">孩子咳嗽时，点击开始录制</div>
+                    </div>
+
+                    <!-- 监控模式 -->
+                    <div id="monitor-mode" style="display: none;">
+                        <button class="monitor-button" id="monitor-btn" onclick="toggleMonitor()">
+                            <span class="record-icon">👂</span>
+                            <span>开始监控</span>
+                        </button>
+                        <div class="monitor-status-text">
+                            <div class="monitor-status-main" id="monitor-status-main">点击开始后台监控</div>
+                            <div class="monitor-status-sub" id="monitor-status-sub">将手机放在孩子旁边</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 最近录音 -->
+                <div class="recent-recordings">
+                    <div class="recent-title">最近录音</div>
+                    <div class="recent-item" onclick="showAnalysis()">
+                        <div class="recent-icon">🎵</div>
+                        <div class="recent-info">
+                            <div class="recent-time">今天 09:32</div>
+                            <div class="recent-type">湿咳 · 3次咳嗽</div>
+                        </div>
+                        <span class="recent-arrow">›</span>
+                    </div>
+                    <div class="recent-item" onclick="showAnalysis()">
+                        <div class="recent-icon monitor">🎵</div>
+                        <div class="recent-info">
+                            <div class="recent-time">今天 03:15</div>
+                            <div class="recent-type">干咳 · 2次 · 监控录制</div>
+                        </div>
+                        <span class="recent-arrow">›</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 历史页 -->
+            <div class="history-page page" id="page-history">
+                <h1 class="page-title">历史</h1>
+
+                <div class="date-group">
+                    <div class="date-header">今天 · 1月21日</div>
+
+                    <div class="history-item" onclick="showAnalysis()">
+                        <div class="history-header">
+                            <span class="history-time">09:32</span>
+                            <span class="history-source">手动</span>
+                        </div>
+                        <div class="history-tags">
+                            <span class="history-tag">湿咳</span>
+                            <span class="history-tag">3次</span>
+                            <span class="history-tag">8秒</span>
+                        </div>
+                    </div>
+
+                    <div class="history-item" onclick="showAnalysis()">
+                        <div class="history-header">
+                            <span class="history-time">03:15</span>
+                            <span class="history-source monitor">监控</span>
+                        </div>
+                        <div class="history-tags">
+                            <span class="history-tag">干咳</span>
+                            <span class="history-tag">2次</span>
+                            <span class="history-tag">10秒</span>
+                        </div>
+                    </div>
+
+                    <div class="history-item" onclick="showAnalysis()">
+                        <div class="history-header">
+                            <span class="history-time">01:42</span>
+                            <span class="history-source monitor">监控</span>
+                        </div>
+                        <div class="history-tags">
+                            <span class="history-tag warning">犬吠样咳</span>
+                            <span class="history-tag">1次</span>
+                            <span class="history-tag">10秒</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="date-group">
+                    <div class="date-header">昨天 · 1月20日</div>
+
+                    <div class="history-item" onclick="showAnalysis()">
+                        <div class="history-header">
+                            <span class="history-time">22:18</span>
+                            <span class="history-source">手动</span>
+                        </div>
+                        <div class="history-tags">
+                            <span class="history-tag">连续咳</span>
+                            <span class="history-tag">5次</span>
+                            <span class="history-tag">12秒</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分析页 -->
+            <div class="analysis-page page" id="page-analysis">
+                <div class="back-button" onclick="goBack()">← 返回</div>
+
+                <!-- 年龄选择（小巧版） -->
+                <div class="age-selector-inline" onclick="toggleAgeDropdown()">
+                    <span class="age-label">孩子年龄</span>
+                    <span class="age-value" id="age-value">幼儿 (1-3岁) <span>›</span></span>
+                </div>
+                <div class="age-dropdown" id="age-dropdown">
+                    <div class="age-dropdown-item" onclick="selectAge('婴儿 (0-1岁)')">婴儿 (0-1岁)</div>
+                    <div class="age-dropdown-item selected" onclick="selectAge('幼儿 (1-3岁)')">幼儿 (1-3岁)</div>
+                    <div class="age-dropdown-item" onclick="selectAge('学龄前 (3-6岁)')">学龄前 (3-6岁)</div>
+                    <div class="age-dropdown-item" onclick="selectAge('学龄 (6-18岁)')">学龄 (6-18岁)</div>
+                </div>
+
+                <div class="audio-player">
+                    <div class="waveform">
+                        <div class="wave-bar" style="height: 15px;"></div>
+                        <div class="wave-bar" style="height: 28px;"></div>
+                        <div class="wave-bar" style="height: 20px;"></div>
+                        <div class="wave-bar" style="height: 38px;"></div>
+                        <div class="wave-bar" style="height: 25px;"></div>
+                        <div class="wave-bar" style="height: 42px;"></div>
+                        <div class="wave-bar" style="height: 30px;"></div>
+                        <div class="wave-bar" style="height: 18px;"></div>
+                        <div class="wave-bar" style="height: 35px;"></div>
+                        <div class="wave-bar" style="height: 22px;"></div>
+                        <div class="wave-bar" style="height: 40px;"></div>
+                        <div class="wave-bar" style="height: 28px;"></div>
+                        <div class="wave-bar" style="height: 15px;"></div>
+                    </div>
+                    <div class="player-controls">
+                        <span class="time-display">0:00</span>
+                        <button class="play-btn" onclick="playAudio()">▶</button>
+                        <span class="time-display">0:08</span>
+                    </div>
+                </div>
+
+                <div class="analysis-result">
+                    <div class="result-title">识别结果 · 共3次咳嗽</div>
+                    <div class="cough-list">
+                        <div class="cough-item">
+                            <div class="cough-index">1</div>
+                            <div class="cough-info">
+                                <div class="cough-type">湿咳</div>
+                                <div class="cough-time">0:01 - 0:02</div>
+                            </div>
+                            <div class="cough-confidence">92%</div>
+                        </div>
+                        <div class="cough-item">
+                            <div class="cough-index">2</div>
+                            <div class="cough-info">
+                                <div class="cough-type">湿咳</div>
+                                <div class="cough-time">0:03 - 0:04</div>
+                            </div>
+                            <div class="cough-confidence">88%</div>
+                        </div>
+                        <div class="cough-item">
+                            <div class="cough-index">3</div>
+                            <div class="cough-info">
+                                <div class="cough-type">湿咳</div>
+                                <div class="cough-time">0:06 - 0:07</div>
+                            </div>
+                            <div class="cough-confidence">95%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-advice">
+                    <div class="ai-header">
+                        <span class="ai-icon">🤖</span>
+                        <span class="ai-title">AI 诊疗建议</span>
+                    </div>
+                    <div class="ai-content">
+                        根据分析，孩子的咳嗽为<strong>湿咳</strong>，可能伴有痰液。建议：<br><br>
+                        1. 保持室内空气湿润<br>
+                        2. 多喝温水<br>
+                        3. 如持续超过3天或加重，建议就医
+                    </div>
+                    <div class="ai-disclaimer">
+                        ⚠️ 以上建议仅供参考，不能替代医生诊断
+                    </div>
+                </div>
+
+                <div class="share-section">
+                    <button class="share-btn primary" onclick="shareAudio()">📤 分享给医生</button>
+                    <button class="share-btn secondary" onclick="showToast('已删除')">🗑️ 删除</button>
+                </div>
+            </div>
+
+            <!-- 设置页 -->
+            <div class="settings-page page" id="page-settings">
+                <h1 class="page-title">设置</h1>
+
+                <div class="settings-group">
+                    <div class="settings-item">
+                        <span class="settings-label">默认年龄段</span>
+                        <span class="settings-value">幼儿 (1-3岁) ›</span>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-item">
+                        <span class="settings-label">健康日志</span>
+                        <span class="settings-value">›</span>
+                    </div>
+                    <div class="settings-item">
+                        <span class="settings-label">症状记录</span>
+                        <span class="settings-value">›</span>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-item">
+                        <span class="settings-label">关于</span>
+                        <span class="settings-value">›</span>
+                    </div>
+                    <div class="settings-item">
+                        <span class="settings-label">免责声明</span>
+                        <span class="settings-value">›</span>
+                    </div>
+                    <div class="settings-item">
+                        <span class="settings-label">版本</span>
+                        <span class="settings-value">1.0.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Bar（3个Tab） -->
+        <div class="tab-bar">
+            <div class="tab-item active" onclick="switchTab('record')">
+                <span class="tab-icon">🎙️</span>
+                <span class="tab-label">录制</span>
+            </div>
+            <div class="tab-item" onclick="switchTab('history')">
+                <span class="tab-icon">📋</span>
+                <span class="tab-label">历史</span>
+            </div>
+            <div class="tab-item" onclick="switchTab('settings')">
+                <span class="tab-icon">⚙️</span>
+                <span class="tab-label">设置</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 录制弹窗 -->
+    <div class="recording-modal" id="recording-modal">
+        <div class="recording-content">
+            <div class="recording-animation">
+                <div class="recording-circle"></div>
+                <div class="recording-dot"></div>
+            </div>
+            <div class="recording-timer" id="recording-timer">0:00</div>
+            <div class="recording-label">正在录制...</div>
+            <button class="stop-btn" onclick="stopRecording()">停止录制</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentPage = 'record';
+        let previousPage = 'record';
+        let currentMode = 'record';
+        let isMonitoring = false;
+        let recordingTimer = null;
+        let recordingSeconds = 0;
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById('page-' + tabName).classList.add('active');
+
+            document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            previousPage = currentPage;
+            currentPage = tabName;
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('mode-record').classList.toggle('active', mode === 'record');
+            document.getElementById('mode-monitor').classList.toggle('active', mode === 'monitor');
+            document.getElementById('record-mode').style.display = mode === 'record' ? 'block' : 'none';
+            document.getElementById('monitor-mode').style.display = mode === 'monitor' ? 'block' : 'none';
+        }
+
+        function startRecording() {
+            recordingSeconds = 0;
+            document.getElementById('recording-modal').classList.add('active');
+            updateRecordingTimer();
+            recordingTimer = setInterval(updateRecordingTimer, 1000);
+        }
+
+        function updateRecordingTimer() {
+            const minutes = Math.floor(recordingSeconds / 60);
+            const seconds = recordingSeconds % 60;
+            document.getElementById('recording-timer').textContent =
+                minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+            recordingSeconds++;
+        }
+
+        function stopRecording() {
+            clearInterval(recordingTimer);
+            document.getElementById('recording-modal').classList.remove('active');
+            showToast('录制完成，正在分析...');
+            setTimeout(() => showAnalysis(), 1500);
+        }
+
+        function toggleMonitor() {
+            isMonitoring = !isMonitoring;
+            const btn = document.getElementById('monitor-btn');
+            const mainText = document.getElementById('monitor-status-main');
+            const subText = document.getElementById('monitor-status-sub');
+
+            if (isMonitoring) {
+                btn.classList.add('active');
+                btn.innerHTML = '<span class="record-icon">👂</span><span>监控中...</span>';
+                mainText.textContent = '正在监听中';
+                subText.textContent = '检测到咳嗽会自动录制';
+                showToast('后台监控已开启');
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '<span class="record-icon">👂</span><span>开始监控</span>';
+                mainText.textContent = '点击开始后台监控';
+                subText.textContent = '将手机放在孩子旁边';
+                showToast('后台监控已关闭');
+            }
+        }
+
+        function showAnalysis() {
+            previousPage = currentPage;
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById('page-analysis').classList.add('active');
+            currentPage = 'analysis';
+        }
+
+        function goBack() {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById('page-' + previousPage).classList.add('active');
+            currentPage = previousPage;
+        }
+
+        function toggleAgeDropdown() {
+            document.getElementById('age-dropdown').classList.toggle('show');
+        }
+
+        function selectAge(age) {
+            document.getElementById('age-value').innerHTML = age + ' <span>›</span>';
+            document.querySelectorAll('.age-dropdown-item').forEach(item => {
+                item.classList.toggle('selected', item.textContent === age);
+            });
+            document.getElementById('age-dropdown').classList.remove('show');
+            showToast('年龄段已更新，重新分析中...');
+        }
+
+        function playAudio() {
+            showToast('正在播放...');
+        }
+
+        function shareAudio() {
+            showToast('选择分享方式：微信、短信...');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // 点击其他地方关闭下拉
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.age-selector-inline') && !e.target.closest('.age-dropdown')) {
+                document.getElementById('age-dropdown').classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

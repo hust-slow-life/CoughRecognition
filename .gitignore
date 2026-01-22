@@ -1,6 +1,20 @@
-# Xcode
-#
-# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
+# ============================================================
+# CoughRecognition .gitignore
+# ============================================================
+
+# ============================================================
+# macOS
+# ============================================================
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ============================================================
+# iOS / Xcode
+# ============================================================
 
 ## User settings
 xcuserdata/
@@ -17,46 +31,239 @@ xcuserdata/
 timeline.xctimeline
 playground.xcworkspace
 
-# Swift Package Manager
-#
-# Add this line if you want to avoid checking in source code from Swift Package Manager dependencies.
-# Packages/
-# Package.pins
-# Package.resolved
-# *.xcodeproj
-#
-# Xcode automatically generates this directory with a .xcworkspacedata file and xcuserdata
-# hence it is not needed unless you have added a package configuration file to your project
-# .swiftpm
-
+## Swift Package Manager
 .build/
+.swiftpm/
+Package.resolved
 
-# CocoaPods
-#
-# We recommend against adding the Pods directory to your .gitignore. However
-# you should judge for yourself, the pros and cons are mentioned at:
-# https://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
-#
+## CocoaPods
 # Pods/
-#
-# Add this line if you want to avoid checking in source code from the Xcode workspace
-# *.xcworkspace
 
-# Carthage
-#
-# Add this line if you want to avoid checking in source code from Carthage dependencies.
-# Carthage/Checkouts
-
+## Carthage
 Carthage/Build/
 
-# fastlane
-#
-# It is recommended to not store the screenshots in the git repo.
-# Instead, use fastlane to re-generate the screenshots whenever they are needed.
-# For more information about the recommended setup visit:
-# https://docs.fastlane.tools/best-practices/source-control/#source-control
-
+## fastlane
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+## Core ML Models (large files, download separately)
+# *.mlmodel
+# *.mlpackage
+
+# ============================================================
+# Node.js / Server
+# ============================================================
+
+## Dependencies
+node_modules/
+
+## Build output
+dist/
+build/
+*.tsbuildinfo
+
+## pnpm
+pnpm-debug.log*
+
+## npm
+npm-debug.log*
+.npm
+
+## yarn
+yarn-debug.log*
+yarn-error.log*
+.yarn/cache
+.yarn/unplugged
+.yarn/install-state.gz
+
+## Test coverage
+coverage/
+.nyc_output/
+
+## Cache
+.cache/
+*.cache
+
+# ============================================================
+# Python / ML Service
+# ============================================================
+
+## Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+## Virtual environments
+venv/
+.venv/
+env/
+.env.local
+
+## Distribution / packaging
+*.egg
+*.egg-info/
+dist/
+eggs/
+.eggs/
+wheels/
+*.whl
+
+## Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+## pytest
+.pytest_cache/
+htmlcov/
+
+## Jupyter Notebook
+.ipynb_checkpoints/
+
+## ML Models (large files, use Git LFS or separate storage)
+*.h5
+*.hdf5
+*.pb
+*.onnx
+*.pt
+*.pth
+models/*.mlmodel
+models/*.mlpackage
+!models/.gitkeep
+
+## Training data (large files)
+datasets/
+data/raw/
+data/processed/
+
+# ============================================================
+# Environment & Secrets
+# ============================================================
+
+## Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+!.env.example
+
+## Secrets and credentials
+*.pem
+*.key
+*.crt
+!*.example.pem
+credentials.json
+secrets.json
+*.secrets
+service-account*.json
+
+# ============================================================
+# Docker
+# ============================================================
+docker-compose.override.yml
+.docker/
+
+# ============================================================
+# Kubernetes
+# ============================================================
+k8s/secrets.yaml
+!k8s/secrets.example.yaml
+
+# ============================================================
+# Database
+# ============================================================
+
+## Database dumps
+*.sql
+*.dump
+!migrations/*.sql
+
+## SQLite
+*.sqlite
+*.sqlite3
+*.db
+
+## PostgreSQL
+*.pgsql
+
+# ============================================================
+# Logs
+# ============================================================
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================================
+# IDE / Editor
+# ============================================================
+
+## JetBrains
+.idea/
+*.iml
+*.iws
+
+## VS Code (uncomment if not sharing settings)
+# .vscode/
+.vscode/settings.json
+.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+
+## Vim
+*.swp
+*.swo
+*~
+
+## Emacs
+*~
+\#*\#
+.#*
+
+# ============================================================
+# Audio / Media (test files)
+# ============================================================
+
+## Audio test files (use fixtures/ for committed test data)
+*.wav
+*.m4a
+*.caf
+*.mp3
+*.aac
+*.flac
+*.ogg
+!tests/fixtures/*.wav
+!tests/fixtures/*.m4a
+
+## Temp audio processing
+temp_audio/
+uploads/
+
+# ============================================================
+# Miscellaneous
+# ============================================================
+
+## Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+## OS generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+## Backup files
+*.bak
+*.backup
+
+## Local configuration
+*.local
+
+## Drizzle
+drizzle/meta/_journal.json
